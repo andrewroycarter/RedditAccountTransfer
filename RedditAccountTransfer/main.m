@@ -11,7 +11,6 @@
 #import "RATAccount.h"
 #import "RATTransferer.h"
 
-void setConsoleEchoEnabled(BOOL enabled);
 RATAccount * getRedditAccount();
 
 int main(int argc, const char * argv[])
@@ -83,37 +82,12 @@ RATAccount * getRedditAccount()
     
     printf("password: ");
     char fromPassword[128];
-#ifndef DEBUG
-    setConsoleEchoEnabled(NO);
-#endif
     fgets(fromPassword, sizeof(fromPassword), stdin);
     strtok(fromPassword, "\n");
-#ifndef DEBUG
-    setConsoleEchoEnabled(YES);
-#endif
+    
     RATAccount *account = [RATAccount new];
     [account setUsername:[[NSString alloc] initWithCString:fromUserName encoding:NSUTF8StringEncoding]];
     [account setPassword:[[NSString alloc] initWithCString:fromPassword encoding:NSUTF8StringEncoding]];
     
     return account;
-}
-
-void setConsoleEchoEnabled(BOOL enabled)
-{
-    struct termios oldFlags, newFlags;
-    tcgetattr(fileno(stdin), &oldFlags);
-    newFlags = oldFlags;
-    
-    if (enabled)
-    {
-        newFlags.c_lflag &= ECHO;
-        newFlags.c_lflag |= ~ECHONL;
-    }
-    else
-    {
-        newFlags.c_lflag &= ~ECHO;
-        newFlags.c_lflag |= ECHONL;
-    }
-    
-    tcsetattr(fileno(stdin), TCSANOW, &newFlags);
 }
