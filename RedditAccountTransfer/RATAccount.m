@@ -58,7 +58,7 @@
             {
                 NSArray *posts = json[@"data"][@"children"];
                 [allPosts addObjectsFromArray:posts];
-                after = [json[@"after"] isKindOfClass:[NSString class]] ? json[@"after"] : nil;
+                after = [json[@"data"][@"after"] isKindOfClass:[NSString class]] ? json[@"data"][@"after"] : nil;
             }
         }
         

@@ -19,6 +19,7 @@
 
     for (NSDictionary *post in [[self fromAccount] savedPosts])
     {
+        printf("Transferring Posts... (%lu/%lu)\n", (unsigned long)[[[self fromAccount] savedPosts] indexOfObject:post] + 1, (unsigned long)[[[self fromAccount] savedPosts] count]);
         NSString *urlString = @"https://ssl.reddit.com/api/save";
         NSURL *url = [NSURL URLWithString:urlString];
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
