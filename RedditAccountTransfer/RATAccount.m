@@ -27,10 +27,10 @@
     
     do
     {
-        NSString *urlString = [NSString stringWithFormat:@"https://ssl.reddit.com/user/%@/saved.json", [self username]];
+        NSString *urlString = [NSString stringWithFormat:@"https://ssl.reddit.com/user/%@/saved.json?limit=100", [self username]];
         if (after)
         {
-            urlString = [[NSString alloc] initWithFormat:@"%@?after=%@", urlString, after];
+            urlString = [[NSString alloc] initWithFormat:@"%@&after=%@", urlString, after];
         }
         
         NSURL *url = [NSURL URLWithString:urlString];
