@@ -16,11 +16,7 @@
 {
     BOOL didTransferSavedPosts = YES;
     NSError *saveError;
-    
-    [[[self fromAccount] savedPosts] enumerateObjectsWithOptions:NSEnumerationConcurrent usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        
-    }];
-    
+
     for (NSDictionary *post in [[self fromAccount] savedPosts])
     {
         NSString *urlString = @"https://ssl.reddit.com/api/save";
