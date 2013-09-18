@@ -13,25 +13,71 @@
 @property (nonatomic, readwrite) BOOL authenticated;
 @property (nonatomic, readwrite) NSString *cookie;
 @property (nonatomic, readwrite) NSString *modhash;
+@property (nonatomic, readwrite) NSArray *savedPosts;
 
 @end
 
 @implementation RATAccount
 
-- (void)getSavedPosts
+- (BOOL)getSavedPosts:(NSError *__autoreleasing *)error
 {
-    NSString *urlString = [NSString stringWithFormat:@"https://ssl.reddit.com/user/%@/saved.json", [self username]];
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
-    [request addValue:[self modhash] forHTTPHeaderField:@"X-Modhash"];
-    [request addValue:[NSString stringWithFormat:@"reddit_session=%@", [self cookie]] forHTTPHeaderField:@"Cookie"];
-    [request setHTTPMethod:@"GET"];
+    NSString *after = nil;
+    NSMutableArray *allPosts = [NSMutableArray new];
+    NSError *getSavedPostsError;
     
-    NSHTTPURLResponse *response;
-    NSError *responseError;
-    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&responseError];
-    NSLog(@"%@", [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]);
+    do
+    {
+        NSString *urlString = [NSString stringWithFormat:@"https://ssl.reddit.com/user/%@/saved.json", [self username]];
+        if (after)
+        {
+            urlString = [[NSString alloc] initWithFormat:@"%@?after=%@", urlString, after];
+        }
+        
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
+        [request addValue:[self modhash] forHTTPHeaderField:@"X-Modhash"];
+        [request addValue:[NSString stringWithFormat:@"reddit_session=%@", [self cookie]] forHTTPHeaderField:@"Cookie"];
+        [request setHTTPMethod:@"GET"];
+        
+        NSHTTPURLResponse *response;
+        NSError *responseError;
+        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&responseError];
+        if (responseError)
+        {
+            getSavedPostsError = responseError;
+        }
+        else
+        {
+            NSError *jsonError;
+            NSDictionary *json = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&jsonError];
+            if (jsonError)
+            {
+                getSavedPostsError = jsonError;
+            }
+            else
+            {
+                NSArray *posts = json[@"data"][@"children"];
+                [allPosts addObjectsFromArray:posts];
+                after = [json[@"after"] isKindOfClass:[NSString class]] ? json[@"after"] : nil;
+            }
+        }
+        
+        // Need to be nice to reddit's API
+        sleep(2);
+        
+    } while (after != nil && getSavedPostsError == nil);
+    
+    [self setSavedPosts:allPosts];
+    
+    if (getSavedPostsError && error != NULL)
+    {
+        *error = getSavedPostsError;
+    }
+    
+    return getSavedPostsError == nil;
 }
+
+
 
 - (void)clearAllRedditCookies
 {

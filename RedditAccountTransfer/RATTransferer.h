@@ -15,6 +15,6 @@
 @property (nonatomic, strong) RATAccount *fromAccount;
 @property (nonatomic, strong) RATAccount *toAccount;
 
-- (void)transferAccounts:(void (^)(BOOL success, NSError *error))completionHandler;
+- (BOOL)transferSavedPosts:(NSError **)error;
 
 @end

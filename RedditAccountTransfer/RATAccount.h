@@ -15,8 +15,9 @@
 @property (nonatomic, readonly, getter = isAuthenticated) BOOL authenticated;
 @property (nonatomic, readonly) NSString *cookie;
 @property (nonatomic, readonly) NSString *modhash;
+@property (nonatomic, readonly) NSArray *savedPosts;
 
 - (BOOL)authenticate:(NSError **)error;
-- (void)getSavedPosts;
+- (BOOL)getSavedPosts:(NSError **)error;
 
 @end

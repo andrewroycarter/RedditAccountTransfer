@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <termios.h>
 #import "RATAccount.h"
+#import "RATTransferer.h"
 
 void setConsoleEchoEnabled(BOOL enabled);
 RATAccount * getRedditAccount();
@@ -24,18 +25,40 @@ int main(int argc, const char * argv[])
         if (![fromAccount authenticate:&error])
         {
             NSLog(@"ERROR: %@", [error localizedDescription]);
-            exit(0);
+            exit(1);
         }
         
-        [fromAccount getSavedPosts];
+        if (![fromAccount getSavedPosts:&error])
+        {
+            NSLog(@"ERROR: %@", [error localizedDescription]);
+            exit(1);
+        };
         
         puts("Transfer TO Reddit Account");
         RATAccount *toAccount = getRedditAccount();
+        
         if (![toAccount authenticate:&error])
         {
             NSLog(@"ERROR: %@", [error localizedDescription]);
-            exit(0);
+            exit(1);
         }
+        
+        if (![toAccount getSavedPosts:&error])
+        {
+            NSLog(@"ERROR: %@", [error localizedDescription]);
+            exit(1);
+        }
+        
+        RATTransferer *transferer = [RATTransferer new];
+        [transferer setToAccount:toAccount];
+        [transferer setFromAccount:fromAccount];
+        
+        if (![transferer transferSavedPosts:&error])
+        {
+            NSLog(@"ERROR: %@", [error localizedDescription]);
+            exit(1);
+        }
+        
     }
     return 0;
 }
