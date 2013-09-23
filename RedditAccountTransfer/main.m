@@ -11,14 +11,12 @@
 #import "RATAccount.h"
 #import "RATTransferer.h"
 
-RATAccount * getRedditAccount();
-
 int main(int argc, const char * argv[])
 {
     @autoreleasepool
     {
         puts("Transfer FROM Reddit Account");
-        RATAccount *fromAccount = getRedditAccount();
+        RATAccount *fromAccount = [[RATAccount alloc] initWithCredentialsPrompt];
         
         NSError *error;
         
@@ -39,7 +37,7 @@ int main(int argc, const char * argv[])
         puts("Got Saved Posts\n");
 
         puts("Transfer TO Reddit Account");
-        RATAccount *toAccount = getRedditAccount();
+        RATAccount *toAccount = [[RATAccount alloc] initWithCredentialsPrompt];
         
         puts("Authenticating...");
         if (![toAccount authenticate:&error])
@@ -71,23 +69,4 @@ int main(int argc, const char * argv[])
         
     }
     return 0;
-}
-
-RATAccount * getRedditAccount()
-{
-    printf("username: ");
-    char fromUserName[128];
-    fgets(fromUserName, sizeof(fromUserName), stdin);
-    strtok(fromUserName, "\n");
-    
-    printf("password: ");
-    char fromPassword[128];
-    fgets(fromPassword, sizeof(fromPassword), stdin);
-    strtok(fromPassword, "\n");
-    
-    RATAccount *account = [RATAccount new];
-    [account setUsername:[[NSString alloc] initWithCString:fromUserName encoding:NSUTF8StringEncoding]];
-    [account setPassword:[[NSString alloc] initWithCString:fromPassword encoding:NSUTF8StringEncoding]];
-    
-    return account;
 }
